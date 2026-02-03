@@ -11,6 +11,7 @@ const FastestPathSearch = () => {
   const [departureDate, setDepartureDate] = useState("2026-02-03");
   const [departureTime, setDepartureTime] = useState("10:55");
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
+  const [selectedSegmentId, setSelectedSegmentId] = useState<string | null>(null);
 
   const routes = useMemo<RouteSummary[]>(
     () => [
@@ -141,126 +142,175 @@ const FastestPathSearch = () => {
   );
 
   const selectedRoute = routes.find((route) => route.id === selectedRouteId) ?? null;
+  const selectedSegment =
+    selectedRoute?.segments.find((segment) => segment.id === selectedSegmentId) ?? null;
+
+  const handleRouteSelect = (routeId: string) => {
+    setSelectedRouteId(routeId);
+    setSelectedSegmentId(null);
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedRouteId(null);
+    setSelectedSegmentId(null);
+  };
+
+  const mapStatus = selectedSegment
+    ? `Segment: ${selectedSegment.line}`
+    : selectedRoute
+    ? `Route: ${selectedRoute.from.name} -> ${selectedRoute.to.name}`
+    : "Search results";
 
   return (
-    <section className="relative w-full max-w-5xl">
-      <div className={`space-y-5 ${selectedRoute ? "lg:pr-[360px]" : ""}`}>
-        <div className="rounded-[32px] bg-white p-6 shadow-sm">
-          <div className="flex gap-4">
-            <div className="flex flex-col items-center pt-2">
-              <div className="h-4 w-4 rounded-full border border-neutral-500 bg-white" />
-              <div className="h-10 w-px bg-neutral-300" />
-              <div className="h-4 w-4 rounded-full border border-neutral-500 bg-white" />
-            </div>
-            <div className="flex-1 space-y-3">
-              <input
-                className="w-full rounded-xl border border-transparent bg-neutral-50 px-4 py-3 text-base text-neutral-700 outline-none transition focus:border-neutral-300"
-                placeholder="Starting location"
-                value={startLocation}
-                onChange={(event) => setStartLocation(event.target.value)}
-              />
-              <div className="h-px w-full bg-neutral-200" />
-              <input
-                className="w-full rounded-xl border border-transparent bg-neutral-50 px-4 py-3 text-base text-neutral-700 outline-none transition focus:border-neutral-300"
-                placeholder="Destination"
-                value={destination}
-                onChange={(event) => setDestination(event.target.value)}
-              />
-            </div>
-          </div>
-        </div>
+    <section className="relative w-full">
+      <div className="relative min-h-[80vh] w-full overflow-hidden rounded-[32px] bg-neutral-200 shadow-inner">
+        <MapBackground />
 
-        <div className="rounded-[32px] bg-white px-6 py-3 shadow-sm">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="flex-1">
-              <input
-                type="date"
-                className="w-full rounded-xl border border-transparent bg-neutral-50 px-4 py-3 text-sm text-neutral-600 outline-none focus:border-neutral-300"
-                value={departureDate}
-                onChange={(event) => setDepartureDate(event.target.value)}
-              />
-            </div>
-            <div className="hidden h-10 w-px bg-neutral-200 sm:block" />
-            <div className="flex-1">
-              <input
-                type="time"
-                className="w-full rounded-xl border border-transparent bg-neutral-50 px-4 py-3 text-sm text-neutral-600 outline-none focus:border-neutral-300"
-                value={departureTime}
-                onChange={(event) => setDepartureTime(event.target.value)}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="text-center text-sm font-semibold uppercase tracking-[0.3em] text-neutral-400">
-          Results
-        </div>
-
-        <div className="rounded-[32px] bg-white px-4 py-2 shadow-sm">
-          {routes.map((route) => (
-            <button
-              key={route.id}
-              type="button"
-              onClick={() => setSelectedRouteId(route.id)}
-              className={`w-full rounded-2xl px-4 py-4 text-left transition hover:bg-neutral-50 ${
-                selectedRouteId === route.id ? "bg-neutral-50" : ""
-              }`}
-              aria-pressed={selectedRouteId === route.id}
-            >
-              <div className="flex flex-col gap-4 md:flex-row md:items-center">
-                <div className="flex items-center gap-3">
-                  <TrainIcon />
-                  <div>
-                    <div className="flex items-center gap-2 text-xs text-neutral-500">
-                      <span className="rounded-full border border-red-400 px-2 py-0.5 font-semibold text-red-500">
-                        {route.line}
-                      </span>
-                      <span>{route.direction}</span>
-                    </div>
+        {!selectedRoute && (
+          <div className="absolute left-1/2 top-6 w-[min(94vw,980px)] -translate-x-1/2">
+            <div className="space-y-5 rounded-[32px] bg-white/95 p-6 shadow-lg backdrop-blur">
+              <div className="rounded-[32px] bg-white p-6 shadow-sm">
+                <div className="flex gap-4">
+                  <div className="flex flex-col items-center pt-2">
+                    <div className="h-4 w-4 rounded-full border border-neutral-500 bg-white" />
+                    <div className="h-10 w-px bg-neutral-300" />
+                    <div className="h-4 w-4 rounded-full border border-neutral-500 bg-white" />
                   </div>
-                </div>
-
-                <div className="flex flex-1 items-center justify-between gap-4">
-                  <div>
-                    <div className="text-lg font-semibold text-neutral-800">
-                      {route.from.time}
-                    </div>
-                    <div className="text-xs text-neutral-500">{route.from.name}</div>
-                  </div>
-
-                  <div className="flex flex-1 flex-col items-center gap-2">
-                    <div className="relative h-4 w-full">
-                      <div className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-neutral-300" />
-                      <div className="absolute left-0 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border border-neutral-500 bg-white" />
-                      <div className="absolute right-0 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full border border-neutral-500 bg-white" />
-                    </div>
-                    <div className="text-xs text-neutral-500">{route.duration}</div>
-                  </div>
-
-                  <div className="text-right">
-                    <div className="text-lg font-semibold text-neutral-800">
-                      {route.to.time}
-                    </div>
-                    <div className="text-xs text-neutral-500">{route.to.name}</div>
+                  <div className="flex-1 space-y-3">
+                    <input
+                      className="w-full rounded-xl border border-transparent bg-neutral-50 px-4 py-3 text-base text-neutral-700 outline-none transition focus:border-neutral-300"
+                      placeholder="Starting location"
+                      value={startLocation}
+                      onChange={(event) => setStartLocation(event.target.value)}
+                    />
+                    <div className="h-px w-full bg-neutral-200" />
+                    <input
+                      className="w-full rounded-xl border border-transparent bg-neutral-50 px-4 py-3 text-base text-neutral-700 outline-none transition focus:border-neutral-300"
+                      placeholder="Destination"
+                      value={destination}
+                      onChange={(event) => setDestination(event.target.value)}
+                    />
                   </div>
                 </div>
               </div>
-              <RouteTransfers segments={route.segments} />
-              <div className="mt-4 h-px w-full bg-neutral-200" />
-            </button>
-          ))}
-        </div>
-      </div>
 
-      {selectedRoute && (
-        <FastestPathRouteDetails
-          route={selectedRoute}
-          onClose={() => setSelectedRouteId(null)}
-        />
-      )}
+              <div className="rounded-[32px] bg-white px-6 py-3 shadow-sm">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <div className="flex-1">
+                    <input
+                      type="date"
+                      className="w-full rounded-xl border border-transparent bg-neutral-50 px-4 py-3 text-sm text-neutral-600 outline-none focus:border-neutral-300"
+                      value={departureDate}
+                      onChange={(event) => setDepartureDate(event.target.value)}
+                    />
+                  </div>
+                  <div className="hidden h-10 w-px bg-neutral-200 sm:block" />
+                  <div className="flex-1">
+                    <input
+                      type="time"
+                      className="w-full rounded-xl border border-transparent bg-neutral-50 px-4 py-3 text-sm text-neutral-600 outline-none focus:border-neutral-300"
+                      value={departureTime}
+                      onChange={(event) => setDepartureTime(event.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-center text-sm font-semibold uppercase tracking-[0.3em] text-neutral-400">
+                Results
+              </div>
+
+              <div className="rounded-[32px] bg-white px-4 py-2 shadow-sm">
+                {routes.map((route) => (
+                  <button
+                    key={route.id}
+                    type="button"
+                    onClick={() => handleRouteSelect(route.id)}
+                    className={`w-full rounded-2xl px-4 py-4 text-left transition hover:bg-neutral-50 ${
+                      selectedRouteId === route.id ? "bg-neutral-50" : ""
+                    }`}
+                    aria-pressed={selectedRouteId === route.id}
+                  >
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center">
+                      <div className="flex items-center gap-3">
+                        <TrainIcon />
+                        <div>
+                          <div className="flex items-center gap-2 text-xs text-neutral-500">
+                            <span className="rounded-full border border-red-400 px-2 py-0.5 font-semibold text-red-500">
+                              {route.line}
+                            </span>
+                            <span>{route.direction}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-1 items-center justify-between gap-4">
+                        <div>
+                          <div className="text-lg font-semibold text-neutral-800">
+                            {route.from.time}
+                          </div>
+                          <div className="text-xs text-neutral-500">{route.from.name}</div>
+                        </div>
+
+                        <div className="flex flex-1 flex-col items-center gap-2">
+                          <div className="relative h-4 w-full">
+                            <div className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-neutral-300" />
+                            <div className="absolute left-0 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border border-neutral-500 bg-white" />
+                            <div className="absolute right-0 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full border border-neutral-500 bg-white" />
+                          </div>
+                          <div className="text-xs text-neutral-500">{route.duration}</div>
+                        </div>
+
+                        <div className="text-right">
+                          <div className="text-lg font-semibold text-neutral-800">
+                            {route.to.time}
+                          </div>
+                          <div className="text-xs text-neutral-500">{route.to.name}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <RouteTransfers segments={route.segments} />
+                    <div className="mt-4 h-px w-full bg-neutral-200" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {selectedRoute && (
+          <>
+            <FastestPathRouteDetails
+              route={selectedRoute}
+              selectedSegmentId={selectedSegmentId}
+              onSelectSegment={(segmentId) => setSelectedSegmentId(segmentId)}
+              onBackToOverview={() => setSelectedSegmentId(null)}
+              onClose={handleCloseDetails}
+            />
+            <div className="absolute right-6 top-6 rounded-full bg-white/90 px-4 py-2 text-xs font-medium text-neutral-600 shadow">
+              {mapStatus}
+            </div>
+            {selectedSegment && (
+              <div className="absolute right-6 top-16 rounded-full bg-white/90 px-3 py-2 text-[11px] text-neutral-500 shadow">
+                Map route highlighted
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </section>
   );
 };
+
+const MapBackground = () => (
+  <div className="absolute inset-0">
+    <div className="absolute inset-0 bg-gradient-to-br from-slate-100 via-slate-200 to-slate-100" />
+    <div className="absolute inset-0 bg-[linear-gradient(transparent_23px,_rgba(0,0,0,0.04)_24px),linear-gradient(90deg,transparent_23px,_rgba(0,0,0,0.04)_24px)] bg-[length:24px_24px]" />
+    <div className="absolute left-10 top-10 h-32 w-32 rounded-full border border-white/70" />
+    <div className="absolute right-24 top-24 h-24 w-24 rounded-full border border-white/70" />
+    <div className="absolute left-1/3 bottom-16 h-40 w-40 rounded-full border border-white/70" />
+  </div>
+);
 
 const TrainIcon = () => (
   <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-blue-600 text-blue-600">

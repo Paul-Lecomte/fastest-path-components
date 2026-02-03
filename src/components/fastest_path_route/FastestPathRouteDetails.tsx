@@ -28,12 +28,24 @@ export type RouteSummary = {
 
 type FastestPathRouteDetailsProps = {
   route: RouteSummary;
+  selectedSegmentId: string | null;
+  onSelectSegment: (segmentId: string) => void;
+  onBackToOverview: () => void;
   onClose: () => void;
 };
 
-const FastestPathRouteDetails = ({ route, onClose }: FastestPathRouteDetailsProps) => {
+const FastestPathRouteDetails = ({
+  route,
+  selectedSegmentId,
+  onSelectSegment,
+  onBackToOverview,
+  onClose,
+}: FastestPathRouteDetailsProps) => {
+  const selectedSegment =
+    route.segments.find((segment) => segment.id === selectedSegmentId) ?? null;
+
   return (
-    <aside className="fixed right-6 top-6 z-20 w-[320px] max-w-[90vw] rounded-[32px] bg-white p-5 shadow-xl">
+    <aside className="absolute left-6 top-6 z-20 w-[320px] max-w-[90vw] rounded-[32px] bg-white p-5 shadow-xl">
       <div className="flex items-center justify-between">
         <button
           className="rounded-full border border-neutral-200 p-2 text-neutral-700 transition hover:border-neutral-300"
@@ -49,46 +61,90 @@ const FastestPathRouteDetails = ({ route, onClose }: FastestPathRouteDetailsProp
         <div className="text-xs text-neutral-400">travel {route.duration}</div>
       </div>
 
-      <div className="mt-5 space-y-6">
-        {route.segments.map((segment) => (
-          <div key={segment.id} className="space-y-3">
-            <div className="flex items-center gap-3">
-              <ModeIcon mode={segment.mode} />
-              <span className="rounded-full border border-red-400 px-2 py-0.5 text-xs font-semibold text-red-500">
-                {segment.line}
-              </span>
-              <span className="text-xs text-neutral-500">{segment.direction}</span>
-              <span className="ml-auto text-xs text-neutral-400">{segment.travelTime}</span>
-            </div>
+      {!selectedSegment ? (
+        <div className="mt-5 space-y-3">
+          {route.segments.map((segment, index) => {
+            const firstStop = segment.stops[0];
+            const lastStop = segment.stops[segment.stops.length - 1];
 
-            <div className="relative pl-6">
-              <div className="absolute left-[9px] top-2 bottom-2 w-px bg-neutral-200" />
-              <div className="space-y-4">
-                {segment.stops.map((stop, index) => (
-                  <div key={`${segment.id}-${index}`} className="flex items-start gap-3">
-                    <div className="mt-1 h-4 w-4 rounded-full border border-neutral-400 bg-white" />
-                    <div className="flex-1 text-sm">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium text-neutral-800">{stop.name}</span>
-                        <span className="text-xs text-neutral-500">{stop.time}</span>
-                      </div>
-                      {stop.platform && (
-                        <div className="text-xs text-neutral-400">{stop.platform}</div>
-                      )}
+            return (
+              <button
+                key={segment.id}
+                type="button"
+                onClick={() => onSelectSegment(segment.id)}
+                className="w-full rounded-2xl border border-neutral-100 px-3 py-3 text-left transition hover:border-neutral-200 hover:bg-neutral-50"
+                aria-label={`Open segment ${index + 1} details`}
+              >
+                <div className="flex items-center gap-3">
+                  <ModeIcon mode={segment.mode} />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 text-xs text-neutral-500">
+                      <span className="rounded-full border border-red-400 px-2 py-0.5 font-semibold text-red-500">
+                        {segment.line}
+                      </span>
+                      <span>{segment.direction}</span>
+                    </div>
+                    <div className="mt-1 text-xs text-neutral-400">
+                      {firstStop?.time} {firstStop?.name} {"->"} {lastStop?.time} {lastStop?.name}
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
+                  <span className="text-xs text-neutral-400">{segment.travelTime}</span>
+                </div>
+                {segment.transferAfter && (
+                  <div className="mt-2 rounded-full bg-neutral-100 px-2 py-1 text-center text-[10px] text-neutral-500">
+                    {segment.transferAfter}
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="mt-5 space-y-4">
+          <button
+            className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400"
+            type="button"
+            onClick={onBackToOverview}
+          >
+            Back to overview
+          </button>
 
-            {segment.transferAfter && (
-              <div className="rounded-full bg-neutral-100 px-3 py-1 text-center text-xs text-neutral-500">
-                {segment.transferAfter}
-              </div>
-            )}
+          <div className="flex items-center gap-3">
+            <ModeIcon mode={selectedSegment.mode} />
+            <span className="rounded-full border border-red-400 px-2 py-0.5 text-xs font-semibold text-red-500">
+              {selectedSegment.line}
+            </span>
+            <span className="text-xs text-neutral-500">{selectedSegment.direction}</span>
+            <span className="ml-auto text-xs text-neutral-400">{selectedSegment.travelTime}</span>
           </div>
-        ))}
-      </div>
+
+          <div className="relative pl-6">
+            <div className="absolute left-[9px] top-2 bottom-2 w-px bg-neutral-200" />
+            <div className="space-y-4">
+              {selectedSegment.stops.map((stop, index) => (
+                <div key={`${selectedSegment.id}-${index}`} className="flex items-start gap-3">
+                  <div className="mt-1 h-4 w-4 rounded-full border border-neutral-400 bg-white" />
+                  <div className="flex-1 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-neutral-800">{stop.name}</span>
+                      <span className="text-xs text-neutral-500">{stop.time}</span>
+                    </div>
+                    {stop.platform && (
+                      <div className="text-xs text-neutral-400">{stop.platform}</div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {selectedSegment.transferAfter && (
+            <div className="rounded-full bg-neutral-100 px-3 py-1 text-center text-xs text-neutral-500">
+              {selectedSegment.transferAfter}
+            </div>
+          )}
+        </div>
+      )}
     </aside>
   );
 };
