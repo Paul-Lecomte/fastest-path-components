@@ -24,6 +24,7 @@ const FastestPathSearch = () => {
         segments: [
           {
             id: "seg-1",
+            mode: "train",
             line: "IC5",
             direction: "Direction Geneve",
             travelTime: "1h 45m",
@@ -41,50 +42,96 @@ const FastestPathSearch = () => {
         line: "IC5",
         direction: "Direction Geneve",
         from: { time: "08:17", name: "Lausanne", platform: "voie 8" },
-        to: { time: "10:00", name: "Geneve", platform: "voie 4" },
-        duration: "1:45",
+        to: { time: "10:05", name: "Geneve", platform: "voie 1" },
+        duration: "1:48",
         segments: [
           {
             id: "seg-2",
+            mode: "train",
             line: "IC5",
             direction: "Direction Geneve",
-            travelTime: "1h 06m",
+            travelTime: "1h 02m",
             stops: [
               { time: "08:17", name: "Lausanne", platform: "voie 8" },
-              { time: "09:23", name: "Zuerich" },
+              { time: "09:19", name: "Nyon" },
             ],
-            transferAfter: "2min transfer",
+            transferAfter: "6min transfer",
           },
           {
             id: "seg-3",
-            line: "IC5",
-            direction: "Direction Geneve",
-            travelTime: "39m",
+            mode: "bus",
+            line: "Bus 12",
+            direction: "Direction Centre",
+            travelTime: "40m",
             stops: [
-              { time: "09:30", name: "Zuerich", platform: "voie 4" },
-              { time: "10:00", name: "Geneve", platform: "voie 4" },
+              { time: "09:25", name: "Nyon Gare" },
+              { time: "10:05", name: "Geneve", platform: "voie 1" },
             ],
           },
         ],
       },
       {
         id: "route-3",
-        line: "IC5",
-        direction: "Direction Geneve",
+        line: "R3",
+        direction: "Direction Leman",
         from: { time: "08:47", name: "Lausanne", platform: "voie 1" },
         to: { time: "10:32", name: "Geneve", platform: "voie 2" },
         duration: "1:45",
         segments: [
           {
             id: "seg-4",
-            line: "IC5",
-            direction: "Direction Geneve",
-            travelTime: "1h 45m",
+            mode: "train",
+            line: "R3",
+            direction: "Direction Leman",
+            travelTime: "55m",
             stops: [
               { time: "08:47", name: "Lausanne", platform: "voie 1" },
-              { time: "09:14", name: "Rolle" },
-              { time: "09:46", name: "Gland" },
+              { time: "09:42", name: "Rolle" },
+            ],
+            transferAfter: "3min transfer",
+          },
+          {
+            id: "seg-5",
+            mode: "tram",
+            line: "Tram 2",
+            direction: "Direction Cornavin",
+            travelTime: "50m",
+            stops: [
+              { time: "09:45", name: "Rolle Centre" },
               { time: "10:32", name: "Geneve", platform: "voie 2" },
+            ],
+          },
+        ],
+      },
+      {
+        id: "route-4",
+        line: "IC5",
+        direction: "Direction Geneve",
+        from: { time: "09:10", name: "Lausanne", platform: "voie 6" },
+        to: { time: "10:50", name: "Geneve", platform: "voie 4" },
+        duration: "1:40",
+        segments: [
+          {
+            id: "seg-6",
+            mode: "walk",
+            line: "Walk",
+            direction: "To platform",
+            travelTime: "8m",
+            stops: [
+              { time: "09:10", name: "Lausanne Hall" },
+              { time: "09:18", name: "Lausanne", platform: "voie 6" },
+            ],
+            transferAfter: "2min transfer",
+          },
+          {
+            id: "seg-7",
+            mode: "train",
+            line: "IC5",
+            direction: "Direction Geneve",
+            travelTime: "1h 32m",
+            stops: [
+              { time: "09:20", name: "Lausanne", platform: "voie 6" },
+              { time: "10:50", name: "Geneve", platform: "voie 4" },
             ],
           },
         ],
@@ -198,6 +245,7 @@ const FastestPathSearch = () => {
                   </div>
                 </div>
               </div>
+              <RouteTransfers segments={route.segments} />
               <div className="mt-4 h-px w-full bg-neutral-200" />
             </button>
           ))}
@@ -231,5 +279,40 @@ const TrainIcon = () => (
     </svg>
   </div>
 );
+
+const RouteTransfers = ({
+  segments,
+}: {
+  segments: RouteSummary["segments"];
+}) => {
+  const transferCount = Math.max(0, segments.length - 1);
+
+  return (
+    <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-neutral-500">
+      {segments.map((segment) => (
+        <span
+          key={segment.id}
+          className={`flex items-center gap-2 rounded-full border px-2 py-0.5 ${
+            segment.mode === "bus"
+              ? "border-emerald-200 text-emerald-600"
+              : segment.mode === "tram"
+              ? "border-purple-200 text-purple-600"
+              : segment.mode === "walk"
+              ? "border-neutral-200 text-neutral-500"
+              : "border-blue-200 text-blue-600"
+          }`}
+        >
+          <span className="h-2 w-2 rounded-full bg-current" />
+          <span>{segment.line}</span>
+        </span>
+      ))}
+      {transferCount > 0 && (
+        <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-neutral-500">
+          {transferCount} transfer{transferCount > 1 ? "s" : ""}
+        </span>
+      )}
+    </div>
+  );
+};
 
 export default FastestPathSearch;

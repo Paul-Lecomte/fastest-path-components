@@ -8,6 +8,7 @@ export type RouteStop = {
 
 export type RouteSegment = {
   id: string;
+  mode: "train" | "bus" | "tram" | "walk";
   line: string;
   direction: string;
   travelTime: string;
@@ -52,7 +53,7 @@ const FastestPathRouteDetails = ({ route, onClose }: FastestPathRouteDetailsProp
         {route.segments.map((segment) => (
           <div key={segment.id} className="space-y-3">
             <div className="flex items-center gap-3">
-              <TrainIcon />
+              <ModeIcon mode={segment.mode} />
               <span className="rounded-full border border-red-400 px-2 py-0.5 text-xs font-semibold text-red-500">
                 {segment.line}
               </span>
@@ -109,6 +110,75 @@ const TrainIcon = () => (
     </svg>
   </div>
 );
+
+const BusIcon = () => (
+  <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-emerald-600 text-emerald-600">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <rect x="4" y="4" width="16" height="12" rx="2" stroke="currentColor" strokeWidth="2" />
+      <path d="M7 9h10" stroke="currentColor" strokeWidth="2" />
+      <circle cx="9" cy="18" r="1.5" fill="currentColor" />
+      <circle cx="15" cy="18" r="1.5" fill="currentColor" />
+    </svg>
+  </div>
+);
+
+const TramIcon = () => (
+  <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-purple-600 text-purple-600">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <rect x="5" y="5" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="2" />
+      <path d="M8 5l-2-3M16 5l2-3" stroke="currentColor" strokeWidth="2" />
+      <circle cx="9" cy="18" r="1.5" fill="currentColor" />
+      <circle cx="15" cy="18" r="1.5" fill="currentColor" />
+    </svg>
+  </div>
+);
+
+const WalkIcon = () => (
+  <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-neutral-400 text-neutral-500">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="5" r="2" fill="currentColor" />
+      <path d="M12 7l-2 5 3 2 1 6" stroke="currentColor" strokeWidth="2" />
+      <path d="M10 12l-3 3" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  </div>
+);
+
+const ModeIcon = ({ mode }: { mode: RouteSegment["mode"] }) => {
+  if (mode === "bus") {
+    return <BusIcon />;
+  }
+
+  if (mode === "tram") {
+    return <TramIcon />;
+  }
+
+  if (mode === "walk") {
+    return <WalkIcon />;
+  }
+
+  return <TrainIcon />;
+};
 
 const CloseIcon = () => (
   <svg
