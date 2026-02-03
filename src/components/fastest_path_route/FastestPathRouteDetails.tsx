@@ -1,0 +1,126 @@
+import React from "react";
+
+export type RouteStop = {
+  time: string;
+  name: string;
+  platform?: string;
+};
+
+export type RouteSegment = {
+  id: string;
+  line: string;
+  direction: string;
+  travelTime: string;
+  stops: RouteStop[];
+  transferAfter?: string;
+};
+
+export type RouteSummary = {
+  id: string;
+  line: string;
+  direction: string;
+  from: RouteStop;
+  to: RouteStop;
+  duration: string;
+  segments: RouteSegment[];
+};
+
+type FastestPathRouteDetailsProps = {
+  route: RouteSummary;
+  onClose: () => void;
+};
+
+const FastestPathRouteDetails = ({ route, onClose }: FastestPathRouteDetailsProps) => {
+  return (
+    <aside className="fixed right-6 top-6 z-20 w-[320px] max-w-[90vw] rounded-[32px] bg-white p-5 shadow-xl">
+      <div className="flex items-center justify-between">
+        <button
+          className="rounded-full border border-neutral-200 p-2 text-neutral-700 transition hover:border-neutral-300"
+          type="button"
+          aria-label="Close route details"
+          onClick={onClose}
+        >
+          <CloseIcon />
+        </button>
+        <div className="text-sm font-medium text-neutral-700">
+          {route.from.name} {"->"} {route.to.name}
+        </div>
+        <div className="text-xs text-neutral-400">travel {route.duration}</div>
+      </div>
+
+      <div className="mt-5 space-y-6">
+        {route.segments.map((segment) => (
+          <div key={segment.id} className="space-y-3">
+            <div className="flex items-center gap-3">
+              <TrainIcon />
+              <span className="rounded-full border border-red-400 px-2 py-0.5 text-xs font-semibold text-red-500">
+                {segment.line}
+              </span>
+              <span className="text-xs text-neutral-500">{segment.direction}</span>
+              <span className="ml-auto text-xs text-neutral-400">{segment.travelTime}</span>
+            </div>
+
+            <div className="relative pl-6">
+              <div className="absolute left-[9px] top-2 bottom-2 w-px bg-neutral-200" />
+              <div className="space-y-4">
+                {segment.stops.map((stop, index) => (
+                  <div key={`${segment.id}-${index}`} className="flex items-start gap-3">
+                    <div className="mt-1 h-4 w-4 rounded-full border border-neutral-400 bg-white" />
+                    <div className="flex-1 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-neutral-800">{stop.name}</span>
+                        <span className="text-xs text-neutral-500">{stop.time}</span>
+                      </div>
+                      {stop.platform && (
+                        <div className="text-xs text-neutral-400">{stop.platform}</div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {segment.transferAfter && (
+              <div className="rounded-full bg-neutral-100 px-3 py-1 text-center text-xs text-neutral-500">
+                {segment.transferAfter}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </aside>
+  );
+};
+
+const TrainIcon = () => (
+  <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-blue-600 text-blue-600">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <rect x="5" y="3" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="2" />
+      <path d="M7 10h10" stroke="currentColor" strokeWidth="2" />
+      <circle cx="9" cy="18" r="1.5" fill="currentColor" />
+      <circle cx="15" cy="18" r="1.5" fill="currentColor" />
+    </svg>
+  </div>
+);
+
+const CloseIcon = () => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" />
+  </svg>
+);
+
+export default FastestPathRouteDetails;
