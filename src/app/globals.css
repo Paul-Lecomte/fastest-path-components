@@ -24,3 +24,34 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.scrollable-results {
+  max-height: 340px; /* Ajustez selon la hauteur souhaitée pour l'UI */
+  overflow-y: auto;
+  padding-right: 8px; /* Pour éviter que la scrollbar ne masque le contenu */
+}
+
+/* Ajout d'un style pour les icônes dans les résultats */
+.result-item img {
+  vertical-align: middle;
+  margin-right: 8px;
+  width: 24px;
+  height: 24px;
+}
+
+/* Optionnel : amélioration du scroll visuel */
+.result-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+/* Scrollbar stylée pour le conteneur de résultats */
+[style*="overflowY: auto"]::-webkit-scrollbar {
+  width: 8px;
+}
+[style*="overflowY: auto"]::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 8px;
+}

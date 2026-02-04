@@ -137,6 +137,67 @@ const FastestPathSearch = () => {
           },
         ],
       },
+      {
+        id: "route-5",
+        line: "Multi",
+        direction: "Direction Geneve Aéroport",
+        from: { time: "07:20", name: "Lausanne", platform: "voie 5" },
+        to: { time: "10:15", name: "Geneve", platform: "voie 4" },
+        duration: "2:55",
+        segments: [
+          {
+            id: "seg-8",
+            mode: "train",
+            line: "S5",
+            direction: "Direction Allaman",
+            travelTime: "22m",
+            stops: [
+              { time: "07:20", name: "Lausanne", platform: "voie 5" },
+              { time: "07:32", name: "Renens" },
+              { time: "07:42", name: "Allaman", platform: "voie 2" }
+            ],
+            transferAfter: "8min transfer"
+          },
+          {
+            id: "seg-9",
+            mode: "bus",
+            line: "Bus 724",
+            direction: "Direction Rolle",
+            travelTime: "35m",
+            stops: [
+              { time: "07:50", name: "Allaman Gare" },
+              { time: "08:10", name: "Aubonne" },
+              { time: "08:25", name: "Rolle Gare" }
+            ],
+            transferAfter: "10min transfer"
+          },
+          {
+            id: "seg-10",
+            mode: "train",
+            line: "RE33",
+            direction: "Direction Coppet",
+            travelTime: "45m",
+            stops: [
+              { time: "08:35", name: "Rolle", platform: "voie 1" },
+              { time: "08:55", name: "Nyon" },
+              { time: "09:20", name: "Coppet", platform: "voie 3" }
+            ],
+            transferAfter: "15min transfer"
+          },
+          {
+            id: "seg-11",
+            mode: "train",
+            line: "SL4",
+            direction: "Direction Annemasse",
+            travelTime: "40m",
+            stops: [
+              { time: "09:35", name: "Coppet", platform: "voie 3" },
+              { time: "09:50", name: "Versoix" },
+              { time: "10:15", name: "Geneve", platform: "voie 4" }
+            ]
+          }
+        ]
+      }
     ],
     []
   );
@@ -220,7 +281,8 @@ const FastestPathSearch = () => {
                 Results
               </div>
 
-              <div className="rounded-[32px] bg-white px-4 py-2 shadow-sm">
+              {/* Conteneur scrollable pour les résultats */}
+              <div style={{ maxHeight: '400px', overflowY: 'auto' }} className="rounded-[32px] bg-white px-4 py-2 shadow-sm">
                 {routes.map((route) => (
                   <button
                     key={route.id}
@@ -233,7 +295,7 @@ const FastestPathSearch = () => {
                   >
                     <div className="flex flex-col gap-4 md:flex-row md:items-center">
                       <div className="flex items-center gap-3">
-                        <TrainIcon />
+                        <RouteMainIcon mode={route.segments[0]?.mode || "train"} />
                         <div>
                           <div className="flex items-center gap-2 text-xs text-neutral-500">
                             <span className="rounded-full border border-red-400 px-2 py-0.5 font-semibold text-red-500">
@@ -312,23 +374,37 @@ const MapBackground = () => (
   </div>
 );
 
-const TrainIcon = () => (
-  <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-blue-600 text-blue-600">
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <rect x="5" y="3" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="2" />
-      <path d="M7 10h10" stroke="currentColor" strokeWidth="2" />
-      <circle cx="9" cy="18" r="1.5" fill="currentColor" />
-      <circle cx="15" cy="18" r="1.5" fill="currentColor" />
-    </svg>
-  </div>
-);
+// Composant pour afficher l'icône principale du trajet selon le mode du premier segment
+const RouteMainIcon = ({ mode }: { mode: string }) => {
+  let src = "/icons/train_marker.png";
+  let border = "border-blue-600";
+  if (mode === "bus") {
+    src = "/icons/bus_marker.png";
+    border = "border-emerald-600";
+  } else if (mode === "tram") {
+    src = "/icons/tram_marker.png";
+    border = "border-purple-600";
+  } else if (mode === "metro") {
+    src = "/icons/metro_marker.png";
+    border = "border-pink-600";
+  } else if (mode === "ferry") {
+    src = "/icons/ferry_marker.png";
+    border = "border-cyan-600";
+  } else if (mode === "cable") {
+    src = "/icons/cable_marker.png";
+    border = "border-yellow-600";
+  }
+  return (
+    <div className={`flex h-10 w-10 items-center justify-center rounded-full border-2 bg-white ${border}`}>
+      <img
+        src={src}
+        alt={`${mode} icon`}
+        className="h-7 w-7 object-contain"
+        draggable={false}
+      />
+    </div>
+  );
+};
 
 const RouteTransfers = ({
   segments,
