@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 
 export type RouteStop = {
   time: string;
@@ -8,7 +9,7 @@ export type RouteStop = {
 
 export type RouteSegment = {
   id: string;
-  mode: "train" | "bus" | "tram" | "walk";
+  mode: "train" | "bus" | "tram" | "walk" | "metro" | "ferry" | "cable";
   line: string;
   direction: string;
   travelTime: string;
@@ -72,7 +73,7 @@ const FastestPathRouteDetails = ({
                 key={segment.id}
                 type="button"
                 onClick={() => onSelectSegment(segment.id)}
-                className="w-full rounded-2xl border border-neutral-100 px-3 py-3 text-left transition hover:border-neutral-200 hover:bg-neutral-50"
+                className="w-full rounded-2xl border border-neutral-100 px-3 py-3 text-left transition hover:border-neutral-200 hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-200"
                 aria-label={`Open segment ${index + 1} details`}
               >
                 <div className="flex items-center gap-3">
@@ -102,7 +103,7 @@ const FastestPathRouteDetails = ({
       ) : (
         <div className="mt-5 space-y-4">
           <button
-            className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400"
+            className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400 transition hover:text-neutral-500"
             type="button"
             onClick={onBackToOverview}
           >
@@ -149,44 +150,82 @@ const FastestPathRouteDetails = ({
   );
 };
 
-const TrainIcon = () => (
-  <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-blue-600 bg-white">
-    <img
-      src="/icons/train_marker.png"
-      alt="Train icon"
+const VehicleIcon = ({
+  src,
+  alt,
+  borderClass,
+}: {
+  src: string;
+  alt: string;
+  borderClass: string;
+}) => (
+  <div
+    className={`flex h-9 w-9 items-center justify-center rounded-full border-2 bg-white ${borderClass}`}
+  >
+    <Image
+      src={src}
+      alt={alt}
+      width={28}
+      height={28}
       className="h-7 w-7 object-contain"
       draggable={false}
     />
   </div>
+);
+
+const TrainIcon = () => (
+  <VehicleIcon
+    src="/icons/train_marker.png"
+    alt="Train icon"
+    borderClass="border-blue-600"
+  />
 );
 
 const BusIcon = () => (
-  <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-emerald-600 bg-white">
-    <img
-      src="/icons/bus_marker.png"
-      alt="Bus icon"
-      className="h-7 w-7 object-contain"
-      draggable={false}
-    />
-  </div>
+  <VehicleIcon
+    src="/icons/bus_marker.png"
+    alt="Bus icon"
+    borderClass="border-emerald-600"
+  />
 );
 
 const TramIcon = () => (
-  <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-purple-600 bg-white">
-    <img
-      src="/icons/tram_marker.png"
-      alt="Tram icon"
-      className="h-7 w-7 object-contain"
-      draggable={false}
-    />
-  </div>
+  <VehicleIcon
+    src="/icons/tram_marker.png"
+    alt="Tram icon"
+    borderClass="border-purple-600"
+  />
+);
+
+const MetroIcon = () => (
+  <VehicleIcon
+    src="/icons/metro_marker.png"
+    alt="Metro icon"
+    borderClass="border-pink-600"
+  />
+);
+
+const FerryIcon = () => (
+  <VehicleIcon
+    src="/icons/ferry_marker.png"
+    alt="Ferry icon"
+    borderClass="border-cyan-600"
+  />
+);
+
+const CableIcon = () => (
+  <VehicleIcon
+    src="/icons/cable_marker.png"
+    alt="Cable car icon"
+    borderClass="border-yellow-600"
+  />
 );
 
 const WalkIcon = () => (
-  <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-neutral-400 text-neutral-500">
+  <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-neutral-400 bg-white text-neutral-500">
     <svg
-      width="18"
-      height="18"
+      width="16"
+      height="16"
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -206,6 +245,18 @@ const ModeIcon = ({ mode }: { mode: RouteSegment["mode"] }) => {
 
   if (mode === "tram") {
     return <TramIcon />;
+  }
+
+  if (mode === "metro") {
+    return <MetroIcon />;
+  }
+
+  if (mode === "ferry") {
+    return <FerryIcon />;
+  }
+
+  if (mode === "cable") {
+    return <CableIcon />;
   }
 
   if (mode === "walk") {

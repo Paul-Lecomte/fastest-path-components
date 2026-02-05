@@ -282,14 +282,16 @@ const FastestPathSearch = () => {
               </div>
 
               {/* Conteneur scrollable pour les résultats */}
-              <div style={{ maxHeight: '400px', overflowY: 'auto' }} className="rounded-[32px] bg-white px-4 py-2 shadow-sm">
+              <div className="results-scroll rounded-[32px] bg-white px-4 py-2 shadow-sm">
                 {routes.map((route) => (
                   <button
                     key={route.id}
                     type="button"
                     onClick={() => handleRouteSelect(route.id)}
-                    className={`w-full rounded-2xl px-4 py-4 text-left transition hover:bg-neutral-50 ${
-                      selectedRouteId === route.id ? "bg-neutral-50" : ""
+                    className={`w-full rounded-2xl border px-4 py-4 text-left transition hover:border-neutral-200 hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-200 ${
+                      selectedRouteId === route.id
+                        ? "border-neutral-200 bg-neutral-50 shadow-sm"
+                        : "border-transparent"
                     }`}
                     aria-pressed={selectedRouteId === route.id}
                   >
@@ -376,29 +378,68 @@ const MapBackground = () => (
 
 // Composant pour afficher l'icône principale du trajet selon le mode du premier segment
 const RouteMainIcon = ({ mode }: { mode: string }) => {
-  let src = "/icons/train_marker.png";
-  let border = "border-blue-600";
-  if (mode === "bus") {
-    src = "/icons/bus_marker.png";
-    border = "border-emerald-600";
-  } else if (mode === "tram") {
-    src = "/icons/tram_marker.png";
-    border = "border-purple-600";
-  } else if (mode === "metro") {
-    src = "/icons/metro_marker.png";
-    border = "border-pink-600";
-  } else if (mode === "ferry") {
-    src = "/icons/ferry_marker.png";
-    border = "border-cyan-600";
-  } else if (mode === "cable") {
-    src = "/icons/cable_marker.png";
-    border = "border-yellow-600";
+  const iconConfig: Record<
+    string,
+    { src: string; border: string; alt: string }
+  > = {
+    train: {
+      src: "/icons/train_marker.png",
+      border: "border-blue-600",
+      alt: "Train icon",
+    },
+    bus: {
+      src: "/icons/bus_marker.png",
+      border: "border-emerald-600",
+      alt: "Bus icon",
+    },
+    tram: {
+      src: "/icons/tram_marker.png",
+      border: "border-purple-600",
+      alt: "Tram icon",
+    },
+    metro: {
+      src: "/icons/metro_marker.png",
+      border: "border-pink-600",
+      alt: "Metro icon",
+    },
+    ferry: {
+      src: "/icons/ferry_marker.png",
+      border: "border-cyan-600",
+      alt: "Ferry icon",
+    },
+    cable: {
+      src: "/icons/cable_marker.png",
+      border: "border-yellow-600",
+      alt: "Cable car icon",
+    },
+  };
+
+  if (mode === "walk") {
+    return (
+      <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-neutral-400 bg-white text-neutral-500">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="5" r="2" fill="currentColor" />
+          <path d="M12 7l-2 5 3 2 1 6" stroke="currentColor" strokeWidth="2" />
+          <path d="M10 12l-3 3" stroke="currentColor" strokeWidth="2" />
+        </svg>
+      </div>
+    );
   }
+
+  const { src, border, alt } = iconConfig[mode] ?? iconConfig.train;
+
   return (
     <div className={`flex h-10 w-10 items-center justify-center rounded-full border-2 bg-white ${border}`}>
       <img
         src={src}
-        alt={`${mode} icon`}
+        alt={alt}
         className="h-7 w-7 object-contain"
         draggable={false}
       />
