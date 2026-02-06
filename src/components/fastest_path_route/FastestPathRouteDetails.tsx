@@ -46,7 +46,7 @@ const FastestPathRouteDetails = ({
     route.segments.find((segment) => segment.id === selectedSegmentId) ?? null;
 
   return (
-    <aside className="absolute left-6 top-6 z-20 w-[320px] max-w-[90vw] rounded-[32px] bg-white p-5 shadow-xl">
+    <aside className="absolute left-6 top-6 z-20 w-[320px] max-w-[90vw] rounded-[32px] bg-gradient-to-b from-white to-neutral-50/50 p-5 shadow-2xl animate-fadeIn">
       <div className="flex items-center justify-between">
         <button
           className="rounded-full border border-neutral-200 p-2 text-neutral-700 transition hover:border-neutral-300"
@@ -56,46 +56,56 @@ const FastestPathRouteDetails = ({
         >
           <CloseIcon />
         </button>
-        <div className="text-sm font-medium text-neutral-700">
-          {route.from.name} {"->"} {route.to.name}
+        <div className="flex-1 px-3">
+          <div className="text-sm font-semibold text-neutral-800">
+            {route.from.name} → {route.to.name}
+          </div>
+          <div className="text-xs text-neutral-400">Total: {route.duration}</div>
         </div>
-        <div className="text-xs text-neutral-400">travel {route.duration}</div>
+        <div className="ml-2 text-xs text-neutral-500">
+          {route.segments.length} segment{route.segments.length > 1 ? "s" : ""}
+        </div>
       </div>
 
       {!selectedSegment ? (
         <div className="mt-5 space-y-3">
+          <div className="text-xs uppercase tracking-wide text-neutral-400">Segments</div>
           {route.segments.map((segment, index) => {
             const firstStop = segment.stops[0];
             const lastStop = segment.stops[segment.stops.length - 1];
+            const badgeColors: Record<string, string> = {
+              train: "border-blue-200 text-blue-600",
+              bus: "border-emerald-200 text-emerald-600",
+              tram: "border-purple-200 text-purple-600",
+              metro: "border-pink-200 text-pink-600",
+              ferry: "border-cyan-200 text-cyan-600",
+              cable: "border-yellow-200 text-yellow-600",
+              walk: "border-neutral-200 text-neutral-600",
+            };
+
+            const badgeClass = badgeColors[segment.mode] ?? badgeColors.train;
 
             return (
               <button
                 key={segment.id}
                 type="button"
                 onClick={() => onSelectSegment(segment.id)}
-                className="w-full rounded-2xl border border-neutral-100 px-3 py-3 text-left transition hover:border-neutral-200 hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-200"
+                className="w-full rounded-2xl border border-neutral-100 px-3 py-3 text-left transition hover:shadow-sm hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-100 flex items-center gap-3"
                 aria-label={`Open segment ${index + 1} details`}
               >
-                <div className="flex items-center gap-3">
-                  <ModeIcon mode={segment.mode} />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 text-xs text-neutral-500">
-                      <span className="rounded-full border border-red-400 px-2 py-0.5 font-semibold text-red-500">
-                        {segment.line}
-                      </span>
-                      <span>{segment.direction}</span>
-                    </div>
-                    <div className="mt-1 text-xs text-neutral-400">
-                      {firstStop?.time} {firstStop?.name} {"->"} {lastStop?.time} {lastStop?.name}
-                    </div>
+                <ModeIcon mode={segment.mode} />
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 text-sm text-neutral-700">
+                    <span className={`rounded-full border px-2 py-0.5 font-semibold ${badgeClass}`}>
+                      {segment.line}
+                    </span>
+                    <span className="text-xs text-neutral-500">{segment.direction}</span>
                   </div>
-                  <span className="text-xs text-neutral-400">{segment.travelTime}</span>
+                  <div className="mt-1 text-xs text-neutral-400">
+                    {firstStop?.time} {firstStop?.name} → {lastStop?.time} {lastStop?.name}
+                  </div>
                 </div>
-                {segment.transferAfter && (
-                  <div className="mt-2 rounded-full bg-neutral-100 px-2 py-1 text-center text-[10px] text-neutral-500">
-                    {segment.transferAfter}
-                  </div>
-                )}
+                <div className="text-xs text-neutral-400">{segment.travelTime}</div>
               </button>
             );
           })}
